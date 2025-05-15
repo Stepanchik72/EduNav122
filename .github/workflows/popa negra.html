@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Помощник в выборе карьеры с переводом</title>
+  <style>
+    /* Основные стили */
+    body {
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      background-image: url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 20px;
+      padding: 20px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 36px;
+      color: #ff6347;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .card {
+      background-color: rgba(249, 249, 249, 0.9);
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card h2 {
+      font-size: 24px;
+      color: #4682b4;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 10px 20px;
+      font-size: 18px;
+      color: #fff;
+      background-color: #ff6347;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-align: center;
+      text-decoration: none;
+      margin: 5px;
+    }
+
+    .button:hover {
+      background-color: #ff4500;
+    }
+
+    .checkbox-group {
+      margin-top: 10px;
+    }
+
+    .checkbox-group label {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      margin-right: 10px;
+    }
+
+    .video-container {
+      margin-top: 20px;
+    }
+
+    .video-container iframe {
+      width: 100%;
+      height: 400px;
+      border-radius: 10px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .score-info {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f0f8ff;
+      border-radius: 10px;
+    }
+
+    .score-info p {
+      margin: 5px 0;
+    }
+
+    /* Translation dropdown styles */
+    .translation-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+
+    .language-selector {
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      background-color: white;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div id="root" class="container"></div>
+
+  <!-- React и ReactDOM -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- React компонент -->
+  <script type="text/babel">
+    const { useState } = React;
+
+    const translations = {
+      intro: {
+        title: {
+          russian: "Помощник в выборе карьеры",
+          kazakh: "Мансап таңдау көмекшісі",
+          english: "Career Guidance Assistant"
+        },
+        description: {
+          russian: "Пройдите этот тест, чтобы узнать подходящий карьерный путь и рекомендации по университетам Казахстана.",
+          kazakh: "Қазақстан университеттері бойынша қолайлы мансап жолы мен ұсыныстарды білу үшін осы тесттен өтіңіз.",
+          english: "Take this test to find out a suitable career path and recommendations for universities in Kazakhstan."
+        },
+        startButton: {
+          russian: "Начать тест",
+          kazakh: "Тестті бастау",
+          english: "Start test"
+        }
+      },
+      questions: [
+        {
+          id: 1,
+          text: {
+            russian: "Какие предметы вам больше всего нравятся?",
+            kazakh: "Сізге қандай пәндер ұнайды?",
+            english: "Which subjects do you like the most?"
+          },
+          options: [
+            { id: "math", text: { russian: "Математика", kazakh: "Математика", english: "Mathematics" } },
+            { id: "physics", text: { russian: "Физика", kazakh: "Физика", english: "Physics" } },
+            { id: "chemistry", text: { russian: "Химия", kazakh: "Химия", english: "Chemistry" } },
+            { id: "biology", text: { russian: "Биология", kazakh: "Биология", english: "Biology" } },
+            { id: "history", text: { russian: "История", kazakh: "Тарих", english: "History" } },
+            { id: "literature", text: { russian: "Литература", kazakh: "Әдебиет", english: "Literature" } },
+            { id: "languages", text: { russian: "Иностранные языки", kazakh: "Шет тілдері", english: "Foreign languages" } },
+            { id: "economics", text: { russian: "Экономика", kazakh: "Экономика", english: "Economics" } },
+            { id: "geography", text: { russian: "География", kazakh: "География", english: "Geography" } },
+            { id: "computer", text: { russian: "Информатика", kazakh: "Ақпараттық технологиялар", english: "Computer science" } }
+          ]
+        },
+        {
+          id: 2,
+          text: {
+            russian: "Какие виды деятельности вам интересны?",
+            kazakh: "Сізді қандай қызмет түрлері қызықтырады?",
+            english: "What types of activities are you interested in?"
+          },
+          options: [
+            { id: "programming", text: { russian: "Программирование", kazakh: "Бағдарламалау", english: "Programming" } },
+            { id: "design", text: { russian: "Дизайн", kazakh: "Дизайн", english: "Design" } },
+            { id: "research", text: { russian: "Исследования", kazakh: "Зерттеу", english: "Research" } },
+            { id: "management", text: { russian: "Управление", kazakh: "Басқару", english: "Management" } },
+            { id: "teaching", text: { russian: "Обучение", kazakh: "Оқыту", english: "Teaching" } },
+            { id: "creativity", text: { russian: "Творчество", kazakh: "Шығармашылық", english: "Creativity" } },
+            { id: "marketing", text: { russian: "Маркетинг", kazakh: "Маркетинг", english: "Marketing" } },
+            { id: "finance", text: { russian: "Финансы", kazakh: "Қаржы", english: "Finance" } },
+            { id: "medicine", text: { russian: "Медицина", kazakh: "Медицина", english: "Medicine" } },
+            { id: "engineering", text: { russian: "Инженерия", kazakh: "Инженерия", english: "Engineering" } }
+          ]
+        },
+        {
+          id: 3,
+          text: {
+            russian: "Какие навыки вы хотите развивать?",
+            kazakh: "Сіз қандай дағдыларды дамытқыңыз келеді?",
+            english: "What skills do you want to develop?"
+          },
+          options: [
+            { id: "analytical", text: { russian: "Аналитическое мышление", kazakh: "Аналитикалық ойлау", english: "Analytical thinking" } },
+            { id: "creativity", text: { russian: "Креативность", kazakh: "Шығармашылық", english: "Creativity" } },
+            { id: "communication", text: { russian: "Коммуникация", kazakh: "Коммуникация", english: "Communication" } },
+            { id: "leadership", text: { russian: "Лидерство", kazakh: "Көшбасшылық", english: "Leadership" } },
+            { id: "technical", text: { russian: "Технические навыки", kazakh: "Техникалық дағдылар", english: "Technical skills" } },
+            { id: "organization", text: { russian: "Организация", kazakh: "Ұйымдастыру", english: "Organization" } },
+            { id: "planning", text: { russian: "Стратегическое планирование", kazakh: "Стратегиялық жоспарлау", english: "Strategic planning" } },
+            { id: "data", text: { russian: "Работа с данными", kazakh: "Деректермен жұмыс", english: "Data handling" } },
+            { id: "problem", text: { russian: "Решение проблем", kazakh: "Мәселелерді шешу", english: "Problem solving" } },
+            { id: "critical", text: { russian: "Критическое мышление", kazakh: "Сын тұрғысынан ойлау", english: "Critical thinking" } }
+          ]
+        },
+        {
+          id: 4,
+          text: {
+            russian: "Какой тип работы вы предпочитаете?",
+            kazakh: "Сіз қандай жұмыс түрін қалайсыз?",
+            english: "What type of work do you prefer?"
+          },
+          options: [
+            { id: "individual", text: { russian: "Индивидуальная", kazakh: "Жеке", english: "Individual" } },
+            { id: "team", text: { russian: "Командная", kazakh: "Командалық", english: "Team" } },
+            { id: "remote", text: { russian: "Удаленная", kazakh: "Қашықтан", english: "Remote" } },
+            { id: "office", text: { russian: "Офисная", kazakh: "Офистік", english: "Office" } },
+            { id: "creative", text: { russian: "Творческая", kazakh: "Шығармашылық", english: "Creative" } },
+            { id: "technical", text: { russian: "Техническая", kazakh: "Техникалық", english: "Technical" } },
+            { id: "research", text: { russian: "Исследовательская", kazakh: "Зерттеу", english: "Research" } },
+            { id: "management", text: { russian: "Управленческая", kazakh: "Басқару", english: "Management" } },
+            { id: "entrepreneurial", text: { russian: "Предпринимательская", kazakh: "Кәсіпкерлік", english: "Entrepreneurial" } },
+            { id: "social", text: { russian: "Социальная", kazakh: "Әлеуметтік", english: "Social" } }
+          ]
+        },
+        {
+          id: 5,
+          text: {
+            russian: "Какие у вас карьерные цели?",
+            kazakh: "Сіздің мансаптық мақсаттарыңыз қандай?",
+            english: "What are your career goals?"
+          },
+          options: [
+            { id: "salary", text: { russian: "Высокая зарплата", kazakh: "Жоғары жалақы", english: "High salary" } },
+            { id: "stability", text: { russian: "Стабильность", kazakh: "Тұрақтылық", english: "Stability" } },
+            { id: "growth", text: { russian: "Карьерный рост", kazakh: "Мансаптық өсу", english: "Career growth" } },
+            { id: "social", text: { russian: "Социальная значимость", kazakh: "Әлеуметтік маңыздылық", english: "Social significance" } },
+            { id: "creative", text: { russian: "Творческая реализация", kazakh: "Шығармашылықты жүзеге асыру", english: "Creative realization" } },
+            { id: "science", text: { russian: "Научные достижения", kazakh: "Ғылыми жетістіктер", english: "Scientific achievements" } },
+            { id: "international", text: { russian: "Международная карьера", kazakh: "Халықаралық мансап", english: "International career" } },
+            { id: "entrepreneurship", text: { russian: "Предпринимательство", kazakh: "Кәсіпкерлік", english: "Entrepreneurship" } },
+            { id: "development", text: { russian: "Личное развитие", kazakh: "Жеке даму", english: "Personal development" } },
+            { id: "balance", text: { russian: "Баланс работы и жизни", kazakh: "Жұмыс пен өмірдің теңгерімі", english: "Work-life balance" } }
+          ]
+        },
+        {
+          id: 6,
+          text: {
+            russian: "Какой уровень ответственности вы готовы взять на себя?",
+            kazakh: "Сіз өзіңізге қандай жауапкершілік деңгейін алуға дайынсыз?",
+            english: "What level of responsibility are you ready to take on?"
+          },
+          options: [
+            { id: "minimal", text: { russian: "Минимальный", kazakh: "Минималды", english: "Minimal" } },
+            { id: "medium", text: { russian: "Средний", kazakh: "Орташа", english: "Medium" } },
+            { id: "high", text: { russian: "Высокий", kazakh: "Жоғары", english: "High" } },
+            { id: "managerial", text: { russian: "Руководящий", kazakh: "Басқарушы", english: "Managerial" } },
+            { id: "entrepreneurial", text: { russian: "Предпринимательский", kazakh: "Кәсіпкерлік", english: "Entrepreneurial" } }
+          ]
+        },
+        {
+          id: 7,
+          text: {
+            russian: "Какой формат обучения вам ближе?",
+            kazakh: "Сізге қандай оқу форматы тиімді ?",
+            english: "What format of education is closer to you?"
+          },
+          options: [
+            { id: "fulltime", text: { russian: "Очный", kazakh: "Күндізгі", english: "Full-time" } },
+            { id: "parttime", text: { russian: "Заочный", kazakh: "Сырттай", english: "Part-time" } },
+            { id: "distance", text: { russian: "Дистанционный", kazakh: "Қашықтан", english: "Distance" } },
+            { id: "mixed", text: { russian: "Смешанный", kazakh: "Аралас", english: "Mixed" } },
+            { id: "self", text: { russian: "Самообразование", kazakh: "Өзін-өзі оқыту", english: "Self-education" } }
+          ]
+        }
+      ],
+      recommendation: {
+        title: {
+          russian: "Ваша рекомендация",
+          kazakh: "Сіздің ұсынысыңыз",
+          english: "Your recommendation"
+        },
+        description: {
+          russian: "На основе ваших ответов, вот наше предложение по вашему карьерному пути",
+          kazakh: "Сіздің жауаптарыңызға сүйене отырып, міне, мансаптық жолыңыз бойынша біздің ұсынысымыз",
+          english: "Based on your answers, here is our recommendation for your career path"
+        },
+        universityLabel: {
+          russian: "Университет",
+          kazakh: "Университет",
+          english: "University"
+        },
+        specializationLabel: {
+          russian: "Специализация",
+          kazakh: "Мамандық",
+          english: "Specialization"
+        },
+        requirementsLabel: {
+          russian: "Требования для поступления",
+          kazakh: "Қабылдау талаптары",
+          english: "Admission requirements"
+        },
+        visitWebsite: {
+          russian: "Посетить сайт университета",
+          kazakh: "Университеттің веб-сайтын шолу",
+          english: "Visit university website"
+        },
+        showScores: {
+          russian: "Показать баллы",
+          kazakh: "Ұпайларды көрсету",
+          english: "Show scores"
+        },
+        hideScores: {
+          russian: "Скрыть баллы",
+          kazakh: "Ұпайларды жасыру",
+          english: "Hide scores"
+        },
+        videoTour: {
+          russian: "Видеообзор",
+          kazakh: "Бейне шолу",
+          english: "Video tour"
+        },
+        financialInfo: {
+          russian: "Посмотреть финансовую информацию",
+          kazakh: "Қаржылық ақпаратты қарау",
+          english: "View financial information"
+        },
+        grantScore: {
+          russian: "Проходной балл на грант",
+          kazakh: "Грантқа өту ұпайы",
+          english: "Grant passing score"
+        },
+        paidScore: {
+          russian: "Проходной балл на платное обучение",
+          kazakh: "Ақылы оқуға өту ұпайы",
+          english: "Paid tuition passing score"
+        }
+      }
+    };
+
+    const universities = [
+      {
+        name: {
+          russian: "Назарбаев Университет",
+          kazakh: "Назарбаев Университеті",
+          english: "Nazarbayev University"
+        },
+        specialization: {
+          russian: "Компьютерные науки",
+          kazakh: "Компьютерлік ғылымдар",
+          english: "Computer Science"
+        },
+        website: "https://nu.edu.kz",
+        tuition: {
+          russian: "8,000,000 KZT/год",
+          kazakh: "8,000,000 KZT/жыл",
+          english: "8,000,000 KZT/year"
+        },
+        livingCost: {
+          russian: "1,500,000 KZT/год",
+          kazakh: "1,500,000 KZT/жыл",
+          english: "1,500,000 KZT/year"
+        },
+        admissionRequirements: {
+          russian: ["IELTS 6.0", "ЕНТ", "Мотивационное письмо"],
+          kazakh: ["IELTS 6.0", "ҰБТ", "Мотивациялық хат"],
+          english: ["IELTS 6.0", "UNT", "Motivation letter"]
+        },
+        video: "https://www.youtube.com/embed/5E1dQZ6JZFU",
+        grantScore: 120,
+        paidScore: 90
+      },
+      {
+        name: {
+          russian: "Казахский национальный университет им. аль-Фараби",
+          kazakh: "Әл-Фараби атындағы Қазақ ұлттық университеті",
+          english: "Al-Farabi Kazakh National University"
+        },
+        specialization: {
+          russian: "Международные отношения",
+          kazakh: "Халықаралық қатынастар",
+          english: "International Relations"
+        },
+        website: "https://www.kaznu.kz",
+        tuition: {
+          russian: "2,500,000 KZT/год",
+          kazakh: "2,500,000 KZT/жыл",
+          english: "2,500,000 KZT/year"
+        },
+        livingCost: {
+          russian: "1,000,000 KZT/год",
+          kazakh: "1,000,000 KZT/жыл",
+          english: "1,000,000 KZT/year"
+        },
+        admissionRequirements: {
+          russian: ["IELTS 5.5", "ЕНТ"],
+          kazakh: ["IELTS 5.5", "ҰБТ"],
+          english: ["IELTS 5.5", "UNT"]
+        },
+        video: "https://www.youtube.com/embed/XYZ123",
+        grantScore: 110,
+        paidScore: 85
+      }
+    ];
+
+    function CareerGuide() {
+      const [currentPage, setCurrentPage] = useState('intro');
+      const [currentQuestion, setCurrentQuestion] = useState(0);
+      const [answers, setAnswers] = useState({});
+      const [recommendation, setRecommendation] = useState(null);
+      const [showScores, setShowScores] = useState(false);
+      const [language, setLanguage] = useState('russian');
+
+      const t = (key, subKey = null) => {
+        if (subKey) {
+          return translations[key][subKey][language] || key;
+        }
+        return translations[key][language] || key;
+      };
+
+      const handleAnswer = (questionId, optionId) => {
+        setAnswers(prev => {
+          const currentAnswers = prev[questionId] || [];
+          return {
+            ...prev,
+            [questionId]: currentAnswers.includes(optionId)
+              ? currentAnswers.filter(id => id !== optionId)
+              : [...currentAnswers, optionId]
+          };
+        });
+      };
+
+      const nextQuestion = () => {
+        if (currentQuestion < translations.questions.length - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+        }
+      };
+
+      const previousQuestion = () => {
+        if (currentQuestion > 0) {
+          setCurrentQuestion(currentQuestion - 1);
+        }
+      };
+
+      const generateRecommendation = () => {
+        // Простая логика рекомендации - выбираем случайный университет
+        const recommendedUniversity = universities[Math.floor(Math.random() * universities.length)];
+        setRecommendation(recommendedUniversity);
+        setCurrentPage('recommendation');
+      };
+
+      const resetTest = () => {
+        setCurrentPage('intro');
+        setCurrentQuestion(0);
+        setAnswers({});
+        setRecommendation(null);
+        setShowScores(false);
+      };
+
+      return (
+        <div className="container">
+          {/* Language selector */}
+          <div className="translation-controls">
+            <select 
+              className="language-selector"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            >
+              <option value="russian">Русский</option>
+              <option value="kazakh">Қазақша</option>
+              <option value="english">English</option>
+            </select>
+          </div>
+
+          {currentPage === 'intro' && (
+            <div className="card">
+              <h1 className="header">{t('intro', 'title')}</h1>
+              <p>{t('intro', 'description')}</p>
+              <button
+                onClick={() => setCurrentPage('test')}
+                className="button"
+              >
+                {t('intro', 'startButton')}
+              </button>
+            </div>
+          )}
+
+          {currentPage === 'test' && translations.questions[currentQuestion] && (
+            <div className="card">
+              <h2>{translations.questions[currentQuestion].text[language]}</h2>
+              <div className="checkbox-group">
+                {translations.questions[currentQuestion].options.map((option) => (
+                  <label key={option.id}>
+                    <input
+                      type="checkbox"
+                      checked={(answers[translations.questions[currentQuestion].id] || []).includes(option.id)}
+                      onChange={() => handleAnswer(translations.questions[currentQuestion].id, option.id)}
+                    />
+                    {option.text[language]}
+                  </label>
+                ))}
+              </div>
+              <div className="footer">
+                <button
+                  onClick={previousQuestion}
+                  disabled={currentQuestion === 0}
+                  className="button"
+                >
+                  {language === 'russian' ? 'Назад' : language === 'kazakh' ? 'Артқа' : 'Back'}
+                </button>
+                {currentQuestion < translations.questions.length - 1 ? (
+                  <button
+                    onClick={nextQuestion}
+                    className="button"
+                  >
+                    {language === 'russian' ? 'Далее' : language === 'kazakh' ? 'Әрі қарай' : 'Next'}
+                  </button>
+                ) : (
+                  <button
+                    onClick={generateRecommendation}
+                    className="button"
+                  >
+                    {language === 'russian' ? 'Завершить' : language === 'kazakh' ? 'Аяқтау' : 'Finish'}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {currentPage === 'recommendation' && recommendation && (
+            <div className="card">
+              <h2>{t('recommendation', 'title')}</h2>
+              <p>{t('recommendation', 'description')}</p>
+              <div>
+                <p><strong>{t('recommendation', 'universityLabel')}:</strong> {recommendation.name[language]}</p>
+                <p><strong>{t('recommendation', 'specializationLabel')}:</strong> {recommendation.specialization[language]}</p>
+                <p><strong>{t('recommendation', 'requirementsLabel')}:</strong></p>
+                <ul>
+                  {recommendation.admissionRequirements[language].map((requirement, index) => (
+                    <li key={index}>{requirement}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="footer">
+                <a
+                  href={recommendation.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="button"
+                >
+                  {t('recommendation', 'visitWebsite')}
+                </a>
+                <button
+                  onClick={() => setShowScores(!showScores)}
+                  className="button"
+                >
+                  {showScores ? t('recommendation', 'hideScores') : t('recommendation', 'showScores')}
+                </button>
+                {recommendation.video && (
+                  <button
+                    onClick={() => setCurrentPage('video')}
+                    className="button"
+                  >
+                    {t('recommendation', 'videoTour')}
+                  </button>
+                )}
+                <button
+                  onClick={() => setCurrentPage('financial')}
+                  className="button"
+                >
+                  {t('recommendation', 'financialInfo')}
+                </button>
+              </div>
+              {showScores && (
+                <div className="score-info">
+                  <p><strong>{t('recommendation', 'grantScore')}:</strong> {recommendation.grantScore}</p>
+                  <p><strong>{t('recommendation', 'paidScore')}:</strong> {recommendation.paidScore}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentPage === 'video' && recommendation && recommendation.video && (
+            <div className="card">
+              <h2>{t('recommendation', 'videoTour')} - {recommendation.name[language]}</h2>
+              <div className="video-container">
+                <iframe
+                  src={recommendation.video}
+                  title="University video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+              <div className="footer">
+                <button
+                  onClick={() => setCurrentPage('recommendation')}
+                  className="button"
+                >
+                  {language === 'russian' ? 'Назад к рекомендациям' : language === 'kazakh' ? 'Ұсыныстарға оралу' : 'Back to recommendations'}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {currentPage === 'financial' && recommendation && (
+            <div className="card">
+              <h2>{t('recommendation', 'financialInfo')}</h2>
+              <p>
+                {language === 'russian' ? 'Ориентировочные расходы для' : 
+                 language === 'kazakh' ? 'Шамамен шығындар' : 
+                 'Estimated expenses for'} {recommendation.name[language]}
+              </p>
+              <div>
+                <p><strong>{language === 'russian' ? 'Стоимость обучения' : language === 'kazakh' ? 'Оқу құны' : 'Tuition'}:</strong> {recommendation.tuition[language]}</p>
+                <p><strong>{language === 'russian' ? 'Расходы на проживание' : language === 'kazakh' ? 'Тұру шығындары' : 'Living costs'}:</strong> {recommendation.livingCost[language]}</p>
+              </div>
+              <div className="footer">
+                <button
+                  onClick={resetTest}
+                  className="button"
+                >
+                  {language === 'russian' ? 'Начать заново' : language === 'kazakh' ? 'Қайта бастау' : 'Start over'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Рендеринг приложения
+    ReactDOM.render(<CareerGuide />, document.getElementById('root'));
+  </script>
+</body>
+</html>
